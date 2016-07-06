@@ -1,3 +1,4 @@
 *.log
 *_gsdata_*
 .settings/org.eclipse.ldt.prefs
+.project
