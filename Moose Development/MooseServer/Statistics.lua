@@ -24,30 +24,11 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
 --"takeoff", playerID, unit_missionID, airdromeName
 --"landing", playerID, unit_missionID, airdromeName
 --"pilot_death", playerID, unit_missionID
-  local Time = DCS.getModelTime()
-  if eventName == "self_kill" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "change_slot" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "crash" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "eject" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "takeoff" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "landing" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  elseif eventName == "pilot_death" then
-    local PlayerName = net.get_player_info( arg1, "name" )
-    log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-  end
-    
+	local Time = DCS.getModelTime()
+	if eventName == "self_kill" or eventName == "change_slot" or eventName == "crash" or eventName == "eject" or eventName == "takeoff" or eventName == "landing" or eventName == "pilot_death" then
+		local PlayerName = net.get_player_info( arg1, "name" )
+		log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
+	end
 end
 
 function MooseCallBacks.onSimulationPause()
