@@ -54,5 +54,7 @@ function MooseCallBacks.onSimulationPause()
   log.write( 'MooseFT', log.INFO, "Simulation paused.\n" )
 end
 
-log.set_output( 'Moose-FlightTimes', 'MooseFT', log.TRACE + log.ALL, log.MESSAGE + log.TIME + log.LEVEL )
+-- Add date and time as file ID to identify logstart. Dues not need to be user understandable, just unique.
+local logtime = tostring(os.date("%Y%m%d%I%M%S"))
+log.set_output( 'Moose-FlightTimes_' .. logtime, 'MooseFT', log.TRACE + log.ALL, log.MESSAGE + log.TIME + log.LEVEL )
 DCS.setUserCallbacks( MooseCallBacks )  -- here we set our callbacks
