@@ -1,4 +1,4 @@
-# MOOSE_SERVER
+# MOOSE SERVER STATISTICS project
 MOOSE Server Statistics project, MOOSE for servers ....
 
 HubJack: The MOOSE Server Statistics code is WIP and is not useful at the moment. Work is done on the code every day but running tests and debugging on private server. Master will be updated as soon as a new tested version is running stable on the private server. So for now please comment and contribute but be careful if you plan to use the master build.
