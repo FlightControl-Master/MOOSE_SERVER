@@ -1,17 +1,222 @@
+do -- start do loop (main)
 local MooseCallBacks = {}
+net.log('MOOSE Server Statistics logfile are loading...') 
+  -- this index will be created one time when server loads Multiplayer.
+-- TASK: Use functions LoGetObjectById and LoGetPlayerPlaneId to get players aircraft.
+-- TASK: Use DCS.getUnitProperty(missionId, propertyId) with 4 as propertyId to get unittype returned
+-- TASK: use net.get_server_id() to identify server admin user and get the server IP address. Use: net.get_player_info(playerID)
+local MooseLogsDir = lfs.writedir() .. [[MooseLogs]]
+local MooseConfigDir = lfs.writedir() ..[[Scripts/MooseServer]]
+local t_serverConfig = {}
+local owner_ownerID = ''
+local owner_serverIP = ''
+local owner_serverName = ''
+local owner_serverUCID = ''
 
-function MooseCallBacks.onPlayerTryConnect(ipaddr, name, ucid, playerID)
-    print('onPlayerTryConnect(%s, %s, %s, %d)', ipaddr, name, ucid, playerID)
-    -- if you want to gently intercept the call, allowing other user scripts to get it,
-    -- you better return nothing here
+-- !!!! global logging configuration START
+moose_servlog = MooseLogsDir.."/MooseServerlog.log"
+mooselogger, logerr = io.open(moose_servlog, "w")
+if not mooselogger then
+  net.log("ERROR: Could not create MOOSE Server Statistics logfile. Error: ".. logerr)
+else
+  net.log("MOOSE Server Statistics logfile: "..moose_servlog)
+end
+function log_write(str)
+  if nil==str then return end
+  if mooselogger then
+    mooselogger:write(os.date("%c") .. " : " .. str,"\r\n")
+    mooselogger:flush()
+  end
+end
+-- !!!! global logging configuration END
+log_write("MOOSE logging enabled: FIRST LINE AFTER LOG CONFIG")
+
+lfs.mkdir(MooseLogsDir)
+
+local loadID = tostring(os.date("%Y%m%d%H%M%S"))
+local loadDate = tostring(os.date("%Y-%m-%d"))
+local loadTime = tostring(os.date("%H:%M:%S"))
+
+local roundID = loadID
+roundCount = 0
+
+local function load_serverConfig()  -- loads server config file with owner information.
+  log_write('moose:load_serverConfig: first line in function') 
+  file = MooseConfigDir .. '/serverConfig.cfg'
+  local f = io.open(file, "r")
+  if f then
+    f:close()
+    log_write('moose:load_serverConfig: FILE exist. ') 
+  else
+    log_write('moose:load_serverConfig: FILE does NOT exist. ') 
+  end
+
+  local confFile = io.open(MooseConfigDir .. '/serverConfig.cfg', 'r')
+  -- log_write('moose: read config file lines to variables: start')
+  local lines = {}
+  for line in io.lines(confFile) do 
+    if line:match("ownerID=(.+)") ~= nil then
+      owner_ownerID = tostring(line:match("ownerID=(.+)"))
+    end
+    if line:match("serverIP=(.+)") ~= nil then
+      owner_serverIP = tostring(line:match("serverIP=(.+)"))
+    end
+    if line:match("serverName=(.+)") ~= nil then
+      owner_serverName = tostring(line:match("serverName=(.+)"))
+    end
+    if line:match("serverUCID=(.+)") ~= nil then
+      owner_serverUCID = tostring(line:match("serverUCID=(.+)"))
+    end
+    lines[#lines + 1] = line
+  end
+  -- log_write('moose: read config file lines to variables: finished')
+end
+
+function MooseCallBacks.onNetConnect(localPlayerID)
+  log_write('moose:onNetConnect: FIRST line in function') 
+  local loadConfig = 0
+  if loadConfig >= 0 then
+    load_serverConfig()
+    loadConfig = 1  
+  end
+
+  mlog = io.open(lfs.writedir() .. "MooseLogs/missioninfo_" .. loadID .. ".csv", "w")
+  mlog:write('serverIP, loadID, roundID, startTime, missionName\n')
+  plog = io.open(lfs.writedir() .. "MooseLogs/playerinfo_" .. loadID .. ".csv", "w")
+  plog:write( 'serverIP, loadID, roundID, playerTime, PlayerUCID, PlayerName, PlayerIP\n')
+  log_write('MOOSE:logging enabled: ' ..moose_servlog)
+
+  log_write('moose:onNetConnect: LAST line in function') 
+end
+
+function MooseCallBacks.onNetMissionChanged(newMissionName)
+  log_write('moose:onNetMissionChanged: FIRST line in function') 
+  -- Using this function to close round files and roll ower to new round info.
+  local missionName = tostring(newMissionName)
+  log_write('moose:onNetMissionChanged mission name: ' ..missionName) 
+  roundID = tostring(os.date("%Y%m%d%H%M%S"))
+  local startTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
+  local simTime = DCS.getModelTime()
+
+  mlog:write( string.format( '"%s", "%s", "%s", "%s", "%s"\n', owner_serverIP, loadID, roundID, startTime, missionName))
+
+  if roundCount == 0 then
+    rlog = io.open(lfs.writedir() .. "MooseLogs/roundinfo_" .. loadID .. ".csv", "w")
+    rlog:write( "serverIP, loadID, roundID, playerTime, simTime, eventName, PlayerName\n")
+    roundCount = 1  
+  
+  else
+    rlog:close()
+    rlog = nil
+    rlog = io.open(lfs.writedir() .. "MooseLogs/roundinfo_" .. roundID .. ".csv", "w")
+    rlog:write( "serverIP, loadID, roundID, playerTime, simTime, eventName, PlayerName\n")
+  end
+  
+end
+
+function MooseCallBacks.onNetDisconnect(reason_msg, err_code)
+  log_write('moose:onNetDisconnect: FIRST line in function') 
+  -- closes opened files so they can be moved over to webserver
+  if rlog then
+    rlog:close() -- Closes round log if present.
+    rlog = nil
+  end
+
+  if mlog then
+    mlog:close() -- Closes mission log if present.
+    mlog = nil
+  end
+
+  if plog then
+    plog:close() -- Closes player log if present.
+    plog = nil
+  end
+
+  if mooselogger then
+    mooselogger:close() -- Closes player log if present.
+    mooselogger = nil
+  end
+
+end
+
+function MooseCallBacks.onPlayerTryConnect(addr, name, ucid, playerID)
+  -- don't use this function for anything at the moment, just keep it here.
     return true -- allow the player to connect
 end
 
-function MooseCallBacks.onSimulationStart()
-    print('Current mission is '..DCS.getMissionName())
+function MooseCallBacks.onPlayerStart(id)
+  local simTime = DCS.getModelTime()
+  local uniqueIndex = tostring(os.date("%Y%m%d%H%M%S")) .. string.format( "%8f", simTime)
+  local PlayerName = net.get_player_info( id, "name" )
+--  local playerDate = tostring(os.date("%Y-%m-%d"))
+  local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
+
+  rlog:write( string.format( '"%s", "%s", "%s", "%s", "%8f", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, simTime, "player_connect", PlayerName ) )
+
 end
 
+function MooseCallBacks.onPlayerChangeSlot(id)
+--a player successfully changed the slot. Not needed at the moment, just keep it here.
+--  log_write('moose:onPlayerChangeSlot: FIRST line in function') 
+--  local PlayerName = net.get_player_info( id, "name" )
+end
+
+-- onPlayerDisconnect does not give a id back. Tested with DCS World release version 1.5.4.55169.134
+-- keep these functions here for regular testing when new DCS World versions loads. 
+--function MooseCallBacks.onPlayerDisconnect(id, err_str)
+--  local PlayerName = net.get_player_info( id, 'name' )
+--  net.log('moose_Playername: ' ..PlayerName)
+--
+--  local n = net.get_name(id)
+--  if names[n] then
+--    names[n] = nil
+--  end
+--  net.log(string.format("moose_Disconnected client [%d] %q", id, n or ""))
+--end
+
+-- onPlayerStop does not give a id back. Tested with DCS World release version 1.5.4.55169.134
+--function MooseCallBacks.onPlayerStop(id) --- when a player leaved the simulation (right before disconnect if the user pressed 'disconnect')
+--  local PlayerName = net.get_player_info( id, 'name' )
+--  net.log('moose_Playername: ' ..PlayerName)
+--
+--  local n = net.get_name(id)
+--  if names[n] then
+--    names[n] = nil
+--  end
+--  net.log(string.format("moose_Disconnected client [%d] %q", id, n or ""))
+--end
+
+function MooseCallBacks.onPlayerConnect(id, name)
+  log_write('moose:onPlayerConnect: first line in function') 
+  local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
+  local PlayerName = net.get_player_info( id, 'name' )
+  local PlayerIP = net.get_player_info( id, 'ipaddr' )
+  local PlayerUCID = net.get_player_info( id, 'ucid' )
+  plog:write(string.format( '"%s", "%s", "%s", "%s", "%s", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, PlayerUCID, PlayerName, PlayerIP))
+
+  log_write('moose:onPlayerConnect: LAST line in function') 
+  return
+end
+
+function MooseCallBacks.onSimulationStart()
+  -- log_write('moose:onSimulationStart: first line in function') 
+  -- Not used at this time!!!!
+end
+
+function MooseCallBacks.onMissionLoadBegin()
+  -- log_write('moose:onMissionLoadBegin: first line in function') 
+  -- Not used at this time!!!!
+end
+
+function MooseCallBacks.onMissionLoadEnd()
+  -- log_write('moose:onMissionLoadEnd: first line in function') 
+  -- Not used at this time!!!!
+end
+
+
 function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 ) 
+  -- log_write('moose:onGameEvent: first line in function. Event: ' ..eventName) 
+
 --"friendly_fire", playerID, weaponName, victimPlayerID
 --"mission_end", winner, msg
 --"kill", killerPlayerID, killerUnitType, killerSide, victimPlayerID, victimUnitType, victimSide, weaponName
@@ -24,18 +229,18 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
 --"takeoff", playerID, unit_missionID, airdromeName
 --"landing", playerID, unit_missionID, airdromeName
 --"pilot_death", playerID, unit_missionID
-	local Time = DCS.getModelTime()
-	if eventName == "self_kill" or eventName == "change_slot" or eventName == "crash" or eventName == "eject" or eventName == "takeoff" or eventName == "landing" or eventName == "pilot_death" then
-		local PlayerName = net.get_player_info( arg1, "name" )
-		log.write( 'MooseFT', log.INFO, string.format( '"%8f", "%s", "%s"\n', Time, eventName, PlayerName ) )
-	end
+--  net.log('moose_test_getUnitType: ' ..MooseCallBacks.getUnitType(missionId))
+  
+  if eventName == "self_kill" or eventName == "change_slot" or eventName == "crash" or eventName == "eject" or eventName == "takeoff" or eventName == "landing" or eventName == "pilot_death" then
+    local simTime = DCS.getModelTime()
+    local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
+    local PlayerName = net.get_player_info( arg1, "name" )
+    rlog:write( string.format( '"%s", "%s", "%s", "%s", "%8f", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, simTime, eventName, PlayerName ) )
+  end
+  -- log_write('moose:onGameEvent: LAST line in function. Event: ' ..eventName) 
 end
 
-function MooseCallBacks.onSimulationPause()
-  log.write( 'MooseFT', log.INFO, "Simulation paused.\n" )
-end
-
--- Add date and time as file ID to identify logstart. Dues not need to be user understandable, just unique.
-local logtime = tostring(os.date("%Y%m%d%I%M%S"))
-log.set_output( 'Moose-FlightTimes_' .. logtime, 'MooseFT', log.TRACE + log.ALL, log.MESSAGE + log.TIME + log.LEVEL )
+net.log('MOOSE:Server Statistics logfile was loaded successfully.') 
 DCS.setUserCallbacks( MooseCallBacks )  -- here we set our callbacks
+log_write("MOOSE:logging enabled: LAST LINE IN DO LOOP - script file is now loaded")
+end -- end do loop
