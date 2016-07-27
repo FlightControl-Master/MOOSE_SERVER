@@ -1,5 +1,5 @@
 # MOOSE SERVER STATISTICS project
-MOOSE Server Statistics project, MOOSE for servers ....
+MOOSE Server Statistics project for DCS World servers beyond DCS 1.5 and DCS 2.0
 
 HubJack: The MOOSE Server Statistics code is WIP and is not useful at the moment. Work is done on the code every day but running tests and debugging on private server. Master will be updated as soon as a new tested version is running stable on the private server. So for now please comment and contribute but be careful if you plan to use the master build.
 
