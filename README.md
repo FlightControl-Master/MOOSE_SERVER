@@ -11,12 +11,17 @@ MOOSE SERVER WIP: Error logging, reading local server info, programming past DCS
 
 WEBSITE WIP: adjusting info export to .csv files, preparing file transport to webserver, testing MySQL server import, building MySQL views, creating simple stats webpage in PHP. 
 
-MOOSE SERVER FUTURE DEVELOPMENT priority list: 
+MOOSE SERVER FUTURE DEVELOPMENT priority list:
+
 1. Collect MOOSE mission statistics file (.csv) that will enable kill and weapons usage togheter with optional scoring details.
+
 2. Link public server play to the shared tacview file of each recorded round.
-2. Personal player accounts on the MOOSE central statistics server to keep recordings of your local singleplayer flights.
-3. Make personal account admin for player to select which flights should be public statistics or private (testflights etc.).
-4. To be decided...
+
+3. Personal player accounts on the MOOSE central statistics server to keep recordings of your local singleplayer flights.
+
+4. Make personal account admin for player to select which flights should be public statistics or private (testflights etc.).
+
+5. To be decided...
 
 
 
