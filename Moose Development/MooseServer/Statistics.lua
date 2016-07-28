@@ -5,13 +5,15 @@ net.log('MOOSE Server Statistics logfile are loading...')
 -- TASK: Use functions LoGetObjectById and LoGetPlayerPlaneId to get players aircraft.
 -- TASK: Use DCS.getUnitProperty(missionId, propertyId) with 4 as propertyId to get unittype returned
 -- TASK: use net.get_server_id() to identify server admin user and get the server IP address. Use: net.get_player_info(playerID)
+-- TASK: Current player list. Use net.get_player_list() -> array of playerID to Returns the list of currently connected players.
+
 local MooseLogsDir = lfs.writedir() .. [[MooseLogs]]
 local MooseConfigDir = lfs.writedir() ..[[Scripts/MooseServer]]
 local t_serverConfig = {}
-local owner_ownerID = ''
-local owner_serverIP = ''
-local owner_serverName = ''
-local owner_serverUCID = ''
+local owner_ownerID="1234"
+local owner_serverIP="unknown IP"
+local owner_serverName="unknown name"
+local owner_serverUCID="unknown UCID"
 
 -- !!!! global logging configuration START
 moose_servlog = MooseLogsDir.."/MooseServerlog.log"
@@ -51,24 +53,29 @@ local function load_serverConfig()  -- loads server config file with owner infor
     log_write('moose:load_serverConfig: FILE does NOT exist. ') 
   end
 
-  local confFile = io.open(MooseConfigDir .. '/serverConfig.cfg', 'r')
+  local confFile, conferr = io.open(MooseConfigDir .. '/serverConfig.cfg', 'r')
   -- log_write('moose: read config file lines to variables: start')
   local lines = {}
-  for line in io.lines(confFile) do 
-    if line:match("ownerID=(.+)") ~= nil then
-      owner_ownerID = tostring(line:match("ownerID=(.+)"))
-    end
-    if line:match("serverIP=(.+)") ~= nil then
-      owner_serverIP = tostring(line:match("serverIP=(.+)"))
-    end
-    if line:match("serverName=(.+)") ~= nil then
-      owner_serverName = tostring(line:match("serverName=(.+)"))
-    end
-    if line:match("serverUCID=(.+)") ~= nil then
-      owner_serverUCID = tostring(line:match("serverUCID=(.+)"))
-    end
-    lines[#lines + 1] = line
+  if not confFile then
+      return  
+    else
+      for line in io.lines(confFile) do 
+        if line:match("ownerID=(.+)") ~= nil then
+          owner_ownerID = tostring(line:match("ownerID=(.+)"))
+        end
+        if line:match("serverIP=(.+)") ~= nil then
+          owner_serverIP = tostring(line:match("serverIP=(.+)"))
+        end
+        if line:match("serverName=(.+)") ~= nil then
+          owner_serverName = tostring(line:match("serverName=(.+)"))
+        end
+        if line:match("serverUCID=(.+)") ~= nil then
+          owner_serverUCID = tostring(line:match("serverUCID=(.+)"))
+        end
+        lines[#lines + 1] = line
+      end
   end
+  
   -- log_write('moose: read config file lines to variables: finished')
 end
 
