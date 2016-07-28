@@ -11,7 +11,6 @@ MOOSE SERVER WIP: Error logging, reading local server info, programming past DCS
 
 WEBSITE WIP: adjusting info export to .csv files, preparing file transport to webserver, testing MySQL server import, building MySQL views, creating simple stats webpage in PHP. 
 
-PS!!! You need a special created config file that identifies your server to start logging. The MOOSE Server Statistics scripts will not work without this file! 
 
 MOOSE SERVER FUTURE DEVELOPMENT priority list:
 
