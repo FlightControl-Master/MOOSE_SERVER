@@ -8,8 +8,7 @@ The project aims to create a statistics central for flight logging based on each
 MOOSE Server now writes logs to it's own directory for easy pickup and move to webserver. The directory is in the servers "Saved Games/DCS" folder and named "MooseLogs". The directory recreates itself when needed so you can rename it before moving. Please remember that DCS World must be stopped to rename the folder.
 
 MOOSE SERVER DONE: Export of Mission data, player data and event data. Recording of player takeoff and landing
-is now working (please se image "Server_settings_1.png" in main fileslist). Finished reading local server info.
-Works in current version. 
+is now working (please se image "Server_settings_1.png" in main fileslist). Finished reading local server info. Solved problem with player "connect" and "disconnect" events. MOOSE Server Statistics now loggs a complete picture of the users events on the server. The codein will now turn more towards MySQL and transport of files to a sentral web server. Will edit the current script to add "Version 1.0" to the heading.
 
 MOOSE SERVER WIP: Error logging (if needed), programming past DCS bugs,  May need to get the chat to go around DCS bugs on this one. 
 Need to implement version number on the file heading.
