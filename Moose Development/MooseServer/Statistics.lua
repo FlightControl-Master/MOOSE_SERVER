@@ -1,7 +1,6 @@
 do -- start do loop (main)
 local MooseCallBacks = {}
 net.log('MOOSE Server Statistics logfile are loading...') 
-  -- this index will be created one time when server loads Multiplayer.
 -- TASK: Use functions LoGetObjectById and LoGetPlayerPlaneId to get players aircraft.
 -- TASK: Use DCS.getUnitProperty(missionId, propertyId) with 4 as propertyId to get unittype returned
 -- TASK: use net.get_server_id() to identify server admin user and get the server IP address. Use: net.get_player_info(playerID)
@@ -152,14 +151,7 @@ function MooseCallBacks.onPlayerTryConnect(addr, name, ucid, playerID)
 end
 
 function MooseCallBacks.onPlayerStart(id)
-  local simTime = DCS.getModelTime()
-  local uniqueIndex = tostring(os.date("%Y%m%d%H%M%S")) .. string.format( "%8f", simTime)
-  local PlayerName = net.get_player_info( id, "name" )
---  local playerDate = tostring(os.date("%Y-%m-%d"))
-  local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
-
-  rlog:write( string.format( '"%s", "%s", "%s", "%s", "%8f", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, simTime, "player_connect", PlayerName ) )
-
+  -- Not used at this time!!!!
 end
 
 function MooseCallBacks.onPlayerChangeSlot(id)
@@ -167,31 +159,6 @@ function MooseCallBacks.onPlayerChangeSlot(id)
 --  log_write('moose:onPlayerChangeSlot: FIRST line in function') 
 --  local PlayerName = net.get_player_info( id, "name" )
 end
-
--- onPlayerDisconnect does not give a id back. Tested with DCS World release version 1.5.4.55169.134
--- keep these functions here for regular testing when new DCS World versions loads. 
---function MooseCallBacks.onPlayerDisconnect(id, err_str)
---  local PlayerName = net.get_player_info( id, 'name' )
---  net.log('moose_Playername: ' ..PlayerName)
---
---  local n = net.get_name(id)
---  if names[n] then
---    names[n] = nil
---  end
---  net.log(string.format("moose_Disconnected client [%d] %q", id, n or ""))
---end
-
--- onPlayerStop does not give a id back. Tested with DCS World release version 1.5.4.55169.134
---function MooseCallBacks.onPlayerStop(id) --- when a player leaved the simulation (right before disconnect if the user pressed 'disconnect')
---  local PlayerName = net.get_player_info( id, 'name' )
---  net.log('moose_Playername: ' ..PlayerName)
---
---  local n = net.get_name(id)
---  if names[n] then
---    names[n] = nil
---  end
---  net.log(string.format("moose_Disconnected client [%d] %q", id, n or ""))
---end
 
 function MooseCallBacks.onPlayerConnect(id, name)
   log_write('moose:onPlayerConnect: first line in function') 
@@ -222,7 +189,7 @@ end
 
 
 function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 ) 
-  -- log_write('moose:onGameEvent: first line in function. Event: ' ..eventName) 
+  log_write('moose:onGameEvent: first line in function. Event: ' ..eventName) 
 
 --"friendly_fire", playerID, weaponName, victimPlayerID
 --"mission_end", winner, msg
@@ -237,6 +204,10 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
 --"landing", playerID, unit_missionID, airdromeName
 --"pilot_death", playerID, unit_missionID
 --  net.log('moose_test_getUnitType: ' ..MooseCallBacks.getUnitType(missionId))
+-- Use function onGameEvent(eventName,arg1,arg2,arg3,arg4) for disconnect event to log actual time on server.
+-- "disconnect", ID_, name, playerSide, reason_code
+
+  --  eventName == "connect" or eventName == "disconnect"
   
   if eventName == "self_kill" or eventName == "change_slot" or eventName == "crash" or eventName == "eject" or eventName == "takeoff" or eventName == "landing" or eventName == "pilot_death" then
     local simTime = DCS.getModelTime()
@@ -244,6 +215,14 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
     local PlayerName = net.get_player_info( arg1, "name" )
     rlog:write( string.format( '"%s", "%s", "%s", "%s", "%8f", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, simTime, eventName, PlayerName ) )
   end
+  if eventName ==  "connect" or eventName == "disconnect" then
+    local simTime = DCS.getModelTime()
+    local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
+    local PlayerName = tostring(arg2)
+    rlog:write( string.format( '"%s", "%s", "%s", "%s", "%8f", "%s", "%s"\n', owner_serverIP, loadID, roundID, playerTime, simTime, eventName, PlayerName ) )
+  end
+    
+
   -- log_write('moose:onGameEvent: LAST line in function. Event: ' ..eventName) 
 end
 
