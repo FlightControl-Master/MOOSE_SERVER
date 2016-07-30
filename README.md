@@ -10,6 +10,10 @@ MOOSE Server now writes logs to it's own directory for easy pickup and move to w
 MOOSE SERVER DONE: Export of Mission data, player data and event data. Recording of player takeoff and landing
 is now working (please se image "Server_settings_1.png" in main fileslist). Finished reading local server info. Solved problem with player "connect" and "disconnect" events. MOOSE Server Statistics now loggs a complete picture of the users events on the server. The codein will now turn more towards MySQL and transport of files to a sentral web server. Will edit the current script to add "Version 1.0" to the heading.
 
+EXTEND ONE: To extend the statistics you can use the MOOSE statistics framework in your mission and get the recorded .csv file. This solution will provide extended statistics also including objective score.
+
+EXTEND TWO: You can also use Tacview recored file by running the Tacview export commandline. Please see Tacview webpage for information on how to export the reecorded information to a .csv file. 
+
 MOOSE SERVER WIP: Error logging (if needed), programming past DCS bugs,  May need to get the chat to go around DCS bugs on this one. 
 Need to implement version number on the file heading.
 
