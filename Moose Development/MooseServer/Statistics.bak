@@ -1,10 +1,6 @@
 do -- start do loop (main)
 local MooseCallBacks = {}
 net.log('MOOSE Server Statistics logfile are loading...') 
-<<<<<<< HEAD
-=======
--- MOOSE Server Statistics version 1.0 - HubJack
->>>>>>> refs/remotes/FlightControl-Master/master
 -- TASK: Use functions LoGetObjectById and LoGetPlayerPlaneId to get players aircraft.
 -- TASK: Use DCS.getUnitProperty(missionId, propertyId) with 4 as propertyId to get unittype returned
 -- TASK: use net.get_server_id() to identify server admin user and get the server IP address. Use: net.get_player_info(playerID)
