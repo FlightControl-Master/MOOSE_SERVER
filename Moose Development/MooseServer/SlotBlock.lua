@@ -7,7 +7,7 @@ net.log('MOOSE Server SlotBlock is loading...')
 -- TASK: Set aside slots for members only (set flags for members based on UCID(most reliable, cant be spoofed))
 -- INSTRUCTIONS:
 -- 1. to turn on SlotBlock System set "SLOTBLOCK" flag in mission to 100 aka 'trigger.action.setUserFlag("SLOTBLOCK", 100)'
--- 2. Set a flag for every slot you want to block "AIRCRAFT_".._unitId = 100 aka 'trigger.action.setUserFlag("AIRCRAFT", 100)'
+-- 2. Set a flag for every slot you want to block "AIRCRAFT_".._unitId = 100 aka 'trigger.action.setUserFlag("AIRCRAFT_1048", 100)', 1048 is the client slot number
 --Note: if flag value changed in config, you must use the new value
 
 --SAMPLE CODE TO USE IN MISSION for turning base slots on and off - it loops through all clients in the _DATABASE table and sets the ownership flags
@@ -27,7 +27,6 @@ net.log('MOOSE Server SlotBlock is loading...')
 --end
 --
 --END CODE SNIPPIT
-
 
 --SlotBlock Config area
 local errorMsgWhenSlotBlocked = "Slot DISABLED, Please capture this airport to use this slot"
