@@ -38,3 +38,9 @@ MOOSE SERVER FUTURE DEVELOPMENT priority list:
 Regards, HubJack
 
 (this project is also a learning project for me to use GitHub's features. Thank you flightControl)
+
+--afinegan Updates
+adding multiple modules to this project
+flags you need to set to turn on each module:
+ConfigStatisticsOn = 1 --turns on Statistics Module
+ConfigSlotBlockOn = 1 --turns on SlotBlock Module

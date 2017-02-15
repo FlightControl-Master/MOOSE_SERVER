@@ -1,2 +1,6 @@
+dofile( lfs.writedir() .. 'Scripts/MooseServer/Config.lua' )
+dofile( lfs.writedir() .. 'Scripts/MooseServer/Utils/ClientSlot.lua' )
+dofile( lfs.writedir() .. 'Scripts/MooseServer/Utils/DosString.lua' )
+dofile( lfs.writedir() .. 'Scripts/MooseServer/Utils/Player.lua' )
 dofile( lfs.writedir() .. 'Scripts/MooseServer/Statistics.lua' )
 dofile( lfs.writedir() .. 'Scripts/MooseServer/SlotBlock.lua' )

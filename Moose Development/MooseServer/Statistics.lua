@@ -1,5 +1,5 @@
 do -- start do loop (main)
-local MooseCallBacks = {}
+local statistics = {}
 net.log('MOOSE Server Statistics logfile are loading...') 
 -- MOOSE Server Statistics version 1.0 - HubJack
 -- TASK: Use functions LoGetObjectById and LoGetPlayerPlaneId to get players aircraft.
@@ -79,7 +79,7 @@ local function load_serverConfig()  -- loads server config file with owner infor
   -- log_write('moose: read config file lines to variables: finished')
 end
 
-function MooseCallBacks.onNetConnect(localPlayerID)
+function statistics.onNetConnect(localPlayerID)
   log_write('moose:onNetConnect: FIRST line in function') 
   local loadConfig = 0
   if loadConfig >= 0 then
@@ -96,7 +96,7 @@ function MooseCallBacks.onNetConnect(localPlayerID)
   log_write('moose:onNetConnect: LAST line in function') 
 end
 
-function MooseCallBacks.onNetMissionChanged(newMissionName)
+function statistics.onNetMissionChanged(newMissionName)
   log_write('moose:onNetMissionChanged: FIRST line in function') 
   -- Using this function to close round files and roll ower to new round info.
   local missionName = tostring(newMissionName)
@@ -121,7 +121,7 @@ function MooseCallBacks.onNetMissionChanged(newMissionName)
   
 end
 
-function MooseCallBacks.onNetDisconnect(reason_msg, err_code)
+function statistics.onNetDisconnect(reason_msg, err_code)
   log_write('moose:onNetDisconnect: FIRST line in function') 
   -- closes opened files so they can be moved over to webserver
   if rlog then
@@ -146,22 +146,22 @@ function MooseCallBacks.onNetDisconnect(reason_msg, err_code)
 
 end
 
-function MooseCallBacks.onPlayerTryConnect(addr, name, ucid, playerID)
+function statistics.onPlayerTryConnect(addr, name, ucid, playerID)
   -- don't use this function for anything at the moment, just keep it here.
     return true -- allow the player to connect
 end
 
-function MooseCallBacks.onPlayerStart(id)
+function statistics.onPlayerStart(id)
   -- Not used at this time!!!!
 end
 
-function MooseCallBacks.onPlayerChangeSlot(id)
+function statistics.onPlayerChangeSlot(id)
 --a player successfully changed the slot. Not needed at the moment, just keep it here.
 --  log_write('moose:onPlayerChangeSlot: FIRST line in function') 
 --  local PlayerName = net.get_player_info( id, "name" )
 end
 
-function MooseCallBacks.onPlayerConnect(id, name)
+function statistics.onPlayerConnect(id, name)
   log_write('moose:onPlayerConnect: first line in function') 
   local playerTime = tostring(os.date("%Y-%m-%d %H:%M:%S"))
   local PlayerName = net.get_player_info( id, 'name' )
@@ -173,23 +173,23 @@ function MooseCallBacks.onPlayerConnect(id, name)
   return
 end
 
-function MooseCallBacks.onSimulationStart()
+function statistics.onSimulationStart()
   -- log_write('moose:onSimulationStart: first line in function') 
   -- Not used at this time!!!!
 end
 
-function MooseCallBacks.onMissionLoadBegin()
+function statistics.onMissionLoadBegin()
   -- log_write('moose:onMissionLoadBegin: first line in function') 
   -- Not used at this time!!!!
 end
 
-function MooseCallBacks.onMissionLoadEnd()
+function statistics.onMissionLoadEnd()
   -- log_write('moose:onMissionLoadEnd: first line in function') 
   -- Not used at this time!!!!
 end
 
 
-function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 ) 
+function statistics.onGameEvent( eventName, arg1, arg2, arg3, arg4 ) 
   log_write('moose:onGameEvent: first line in function. Event: ' ..eventName) 
 
 --"friendly_fire", playerID, weaponName, victimPlayerID
@@ -204,7 +204,7 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
 --"takeoff", playerID, unit_missionID, airdromeName
 --"landing", playerID, unit_missionID, airdromeName
 --"pilot_death", playerID, unit_missionID
---  net.log('moose_test_getUnitType: ' ..MooseCallBacks.getUnitType(missionId))
+--  net.log('moose_test_getUnitType: ' ..statistics.getUnitType(missionId))
 -- Use function onGameEvent(eventName,arg1,arg2,arg3,arg4) for disconnect event to log actual time on server.
 -- "disconnect", ID_, name, playerSide, reason_code
 
@@ -227,7 +227,15 @@ function MooseCallBacks.onGameEvent( eventName, arg1, arg2, arg3, arg4 )
   -- log_write('moose:onGameEvent: LAST line in function. Event: ' ..eventName) 
 end
 
+statistics.statisticsEnabled = function()
+    local _res = dosString.getFlagValue("ConfigStatisticsOn")
+    return _res == 1
+end
+
 net.log('MOOSE:Server Statistics logfile was loaded successfully.') 
-DCS.setUserCallbacks( MooseCallBacks )  -- here we set our callbacks
-log_write("MOOSE:logging enabled: LAST LINE IN DO LOOP - script file is now loaded")
+  --enable Statistics is flag is set correctly
+  if statistics.statisticsEnabled then
+    DCS.setUserCallbacks( statistics )  -- here we set our callbacks
+    log_write("MOOSE:logging enabled: LAST LINE IN DO LOOP - script file is now loaded")
+  end
 end -- end do loop
